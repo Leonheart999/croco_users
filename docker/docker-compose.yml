@@ -1,0 +1,25 @@
+version: "3"
+services:
+  postgres_croco:
+    container_name: 'postgres_croco'
+    restart: 'always'
+    image: croco/postgres
+    build: ./postgres
+    ports:
+      - "5433:5432"
+    logging:
+      driver: json-file
+      options:
+        max-size: "200k"
+        max-file: "5"
+  hazelcast_croco:
+    image: hazelcast/hazelcast
+    ports:
+      - "5701:5701"
+  management-center:
+    image: hazelcast/management-center
+    ports:
+      - "8081:8080"
+    environment:
+      - MC_DEFAULT_CLUSTER=dev
+      - MC_DEFAULT_CLUSTER_MEMBERS=hazelcast

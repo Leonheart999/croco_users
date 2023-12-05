@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+
+    postgres_croco:
+      container_name: 'postgres_croco'
+      restart: 'always'
+      image: croco/postgres
+      build: ./docker/postgres
+      ports:
+        - "5433:5432"
+      logging:
+        driver: json-file
+        options:
+          max-size: "200k"
+          max-file: "5"
+      environment:
+        POSTGRES_PASSWORD: password123123
+        TZ: "Asia/Tbilisi"
+    hazelcast_croco:
+      image: hazelcast/hazelcast
+      ports:
+        - "5701:5701"
+    management-center:
+      image: hazelcast/management-center
+      ports:
+        - "8081:8080"
+      environment:
+        - MC_DEFAULT_CLUSTER=dev
+        - MC_DEFAULT_CLUSTER_MEMBERS=hazelcast
+    croco-users-app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "8089:8089"
+      depends_on:
+        - postgres_croco
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_croco:5432/croco
+        SPRING_DATASOURCE_USERNAME: leon
+        SPRING_DATASOURCE_PASSWORD: q1w2e3r4t5y6
